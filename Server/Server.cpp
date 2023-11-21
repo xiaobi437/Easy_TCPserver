@@ -116,25 +116,6 @@ protected:
 
 
 };
-/*
-void cmdThread(bool* g_bRun)
-{
-	while (true)
-	{
-		char cmdBuf[256] = {};
-		scanf("%s", cmdBuf);
-		if (0 == strcmp(cmdBuf, "exit"))
-		{
-			*g_bRun = false;
-			printf("退出cmdThread线程\n");
-			break;
-		}
-		else {
-			printf("不支持的命令。\n");
-		}
-	}
-}
-*/
 #if 1
 int main(int argc, char* argv[])
 {

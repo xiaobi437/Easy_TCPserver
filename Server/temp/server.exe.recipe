@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\c++\xuexi\socket_thread网络模型\select_thread1.7\x64Release\Server.exe</FullPath>
+      <FullPath>D:\c++\xuexi\socket_thread网络模型\select_thread1.7\x64Debug\Server.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

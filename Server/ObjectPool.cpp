@@ -1,6 +1,5 @@
 ﻿#include "Object_Pool.h"
 
-
 #if 0
 class ClassA :public ObjectPoolBase<ClassA,1>
 {
