@@ -1,4 +1,5 @@
 ﻿#include "Server.h"
+#include "CELLMsgStream.hpp"
 
 class MyServer :virtual public Server
 {
@@ -52,39 +53,38 @@ public:
 		}
 		case CMD_LOGINOUT:		//退出成功就返回结果
 		{
-			LoginOut* loginout = (LoginOut*)data_header;
-			if (strcmp(loginout->userName, "root") == 0) {
-				//std::shared_ptr<LoginOutResult> loginout_result(new LoginOutResult());
-				LoginOutResult* loginout_result = new LoginOutResult();
-				loginout_result->result = 1;
-#if TEXE_SEND
-				if (SOCKET_ERROR == p_clients->sendData(loginout))
-				{
-					Cell_Log::Instance().Info(Warning_Msg, "sockte<%d> send full\n", p_clients->sockfd());
-					//发送缓冲区满了，消息没发出去。（处理方式看业务）
-				}
-				//向客户端发送包头数据 同步
-				//pCell_Server->addSendTask(p_clients, (DataHeader *)loginout_result);
-				Server::onSendCount(p_clients);
-#endif
-				break;
-			}
-			else {
-				//std::shared_ptr<LoginOutResult> loginout_result(new LoginOutResult());
-				LoginOutResult* loginout_result = new LoginOutResult();
-				loginout_result->result = -1;
-#if TEXE_SEND
-				if (SOCKET_ERROR == p_clients->sendData(loginout))
-				{
-					Cell_Log::Instance().Info(Warning_Msg, "sockte<%d> send full\n", p_clients->sockfd());
-					//发送缓冲区满了，消息没发出去。（处理方式看业务）
-				}
-				//向客户端发送包头数据 同步
-				//pCell_Server->addSendTask(p_clients, (DataHeader *)loginout_result);
-				Server::onSendCount(p_clients);
-#endif
-				break;
-			}
+			p_clients->resetDtHeart();
+			CELLReadStream r(data_header);
+			//读取消息长度
+			r.ReadInt16();
+			//读取消息命令
+			r.getNetCmd();
+			auto n1 = r.ReadInt8();
+			auto n2 = r.ReadInt16();
+			auto n3 = r.ReadInt32();
+			auto n4 = r.ReadFloat();
+			auto n5 = r.ReadDouble();
+			uint32_t n = 0;
+			r.onlyRead(n);
+			char name[32] = {};
+			auto n6 = r.ReadArray(name, 32);
+			char pw[32] = {};
+			auto n7 = r.ReadArray(pw, 32);
+			int ata[10] = {};
+			auto n8 = r.ReadArray(ata, 10);
+			///
+			CELLWriteStream s(128);
+			s.setNetCmd(CMD_LOGINOUT_RET);
+			s.WriteInt8(n1);
+			s.WriteInt16(n2);
+			s.WriteInt32(n3);
+			s.WriteFloat(n4);
+			s.WriteDouble(n5);
+			s.WriteArray(name, n6);
+			s.WriteArray(pw, n7);
+			s.WriteArray(ata, n8);
+			s.finsh();
+			p_clients->sendData(s.data(), s.length());
 		}
 		case CMD_HEART_C2S:
 		{

@@ -12,7 +12,7 @@ class MyClient:public Client
 {
 public:
 	//处理包头
-	virtual int onNetMsg(Cell_Client* _pClient, DataHeader* data_head)
+	virtual void onNetMsg(DataHeader* data_head)
 	{
 		char cmd_buf[6][20] = { "CMD_LOGIN", "CMD_LOGIN_RET", "CMD_LOGINOUT", "CMD_LOGINOUT_RET", "CMD_NEW_LOGIN", "CMD_ERROR" };
 		switch (data_head->cmd)
@@ -53,7 +53,6 @@ public:
 			Cell_Log::Info(Error_Msg, "收到服务器<socket:%d>未知数据, 数据长度:%d\n", (int)_pClient->sockfd(), data_head->dataLength);
 			break;
 		}
-		return 0;
 	}
 };
 
