@@ -122,8 +122,7 @@ void send_Thread(Client* clients[], const int cCount, int id)
 	readyCount++;
 	while (readyCount < tCount)
 	{
-		std::chrono::milliseconds t(10);
-		std::this_thread::sleep_for(t);
+		Cell_Thread::Sleep(1000);
 	}
 	// 启动接收线程
 	std::thread t1(recv_Thread, clients, begin, end, id);

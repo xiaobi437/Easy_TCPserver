@@ -85,6 +85,7 @@ public:
 			s.WriteArray(ata, n8);
 			s.finsh();
 			p_clients->sendData(s.data(), s.length());
+			break;
 		}
 		case CMD_HEART_C2S:
 		{
@@ -109,12 +110,6 @@ public:
 		}
 
 	}
-
-private:
-	
-protected:
-
-
 };
 #if 1
 int main(int argc, char* argv[])
@@ -172,8 +167,7 @@ int main(int argc, char* argv[])
 	serverA.Close();
 	printf("服务器已退出。\n");
 
-	std::chrono::seconds t(3);
-	std::this_thread::sleep_for(t);
+	Cell_Thread::Sleep(2000);
 
 	return 0;
 }
