@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 
 #ifdef _WIN32
 	MyServer serverA;
-	serverA.Init_sock("192.168.31.240", 10000);
+	serverA.Init_sock("2.2.2.200", 10000);
 	serverA.Listen(5);
 	serverA.Start(4);
 #else

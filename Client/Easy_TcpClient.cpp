@@ -124,7 +124,7 @@ void send_Thread(Client* clients[], const int cCount, int id)
 	for (int n = begin; n < end; n++)
 	{
 #if 1
-		clients[n]->Connect("192.168.31.240", 10000);
+		clients[n]->Connect("2.2.2.200", 10000);
 #else
 		clients[n]->Connect("192.168.31.241", 10001);
 #endif
