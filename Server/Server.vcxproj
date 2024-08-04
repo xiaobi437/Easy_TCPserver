@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="list.cpp" />
     <ClCompile Include="Memory_Pool.cpp" />
     <ClCompile Include="ObjectPool.cpp" />
     <ClCompile Include="Server.cpp" />

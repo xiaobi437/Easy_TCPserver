@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="..\Server\Memory_Pool.cpp" />
     <ClCompile Include="Easy_TcpClient.cpp" />
+    <ClCompile Include="list.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
