@@ -1,59 +1,401 @@
-#include <iostream>
+Show
+BaseType "Despot Axe" "皇家战铠"
+ItemLevel >= 86
+Rarity <= Rare
+SetBackgroundColor 200 200 200
+SetBorderColor 136 136 255
+SetTextColor 136 136 255
+SetFontSize 60
+MinimapIcon 1 Blue UpsideDownHouse
+PlayEffect Blue
 
-using namespace std;
+Show # 通货 - 赛季通货 * -[命运试炼] - 荣誉文身
+Class "Stackable Currency"
+BaseType "Honoured Tattoo of the Makanga" "Honoured Tattoo of the Dove" "Honoured Tattoo of the Sky" "Honoured Tattoo of the Tuatara" "Honoured Tattoo of the Pillager" "Honoured Tattoo of the Turtle" "Honoured Tattoo of the Oak" "Honoured Tattoo of the Hatungo" "Honoured Tattoo of the Flock" "Honoured Tattoo of the Warlord" "Honoured Tattoo of the Mountain" "Honoured Tattoo of the Pa" "Honoured Tattoo of the Hunter" "Honoured Tattoo of the Barbarian" "Honoured Tattoo of the Berserker" "Honoured Tattoo of the Wise" "Honoured Tattoo of the Storm" "Honoured Tattoo of the Flood"
+SetTextColor 0 0 0
+SetBackgroundColor 207 135 241 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 1 Cyan Triangle
+PlayEffect Cyan
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\荣誉文身.mp3" 300
+DisableDropSound
 
-class A
-{
-public:
-	A(int a) :a(a) {}
-	//运算符+重载
-	/*A operator+(A a) {
-		return A(this->a + a.a);
-	}*/
-	friend ostream& operator<< (ostream& out, A a);
-private:
-	int a;
-};
-//输出重载
-ostream& operator<< (ostream& out, A a)
-{
-	return cout << "(" << a.a << ")" << endl;
-}
+Show # 通货 - 赛季通货 * -[命运试炼] - 旅途文身
+Class "Stackable Currency"
+BaseType "Journey Tattoo of the Soul" "Journey Tattoo of the Mind" "Journey Tattoo of the Body" "Journey Tattoo of Makanui"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 1 Cyan Triangle
+PlayEffect Cyan
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\文身.mp3" 300
+DisableDropSound
 
-//函数重载
-/*
-int add(int a, int b) {
-	return a + b;
-}
-double add(double a, double b) {
-	return a + b;
-}
-*/
-/*
-正常来说要实现不同类型的相加要写不同的重载函数
-模板函数解决了，实现同样功能，又省代码的问题
-模板函数，就是一个高级的重载函数，他的返回类型和输入类型是万能的，可以自动匹配类型
-*/
+Show # 通货 - 赛季通货 * -[命运试炼] - 忠诚文身
+Class "Stackable Currency"
+BaseType "Loyalty Tattoo of Kaom" "Loyalty Tattoo of Utula" "Loyalty Tattoo of Akoya" "Loyalty Tattoo of Kahuturoa" "Loyalty Tattoo of Rakiata" "Loyalty Tattoo of Ikiaho" "Loyalty Tattoo of Ahuana" "Loyalty Tattoo of Tawhanuku" "Loyalty Tattoo of Maata" "Loyalty Tattoo of Kiloava"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 1 Cyan Triangle
+PlayEffect Cyan
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\忠诚文身.mp3" 300
+DisableDropSound
 
-template<typename T>
-T add(T a, T b)
-{
-	return a + b;
-}
-#if 0
-int main(int argc, char* argv[])
-{
-	//正常写法
-	/*
-	cout << add<int>(1, 1) << endl;
-	cout << add<double>(1.1, 1.1) << endl;
-	cout << add<A>(A(1), A(1)) << endl;
-	*/
+Show # 通货 - 赛季通货 * -[命运试炼] - 文身
+Class "Stackable Currency"
+BaseType "Tattoo of the Ngamahu Firewalker" "Tattoo of the Ngamahu Shaman" "Tattoo of the Ngamahu Warrior" "Tattoo of the Ngamahu Warmonger" "Tattoo of the Ngamahu Woodcarver" "Tattoo of the Ngamahu Makanga" "Tattoo of the Kitava Blood Drinker" "Tattoo of the Kitava Rebel" "Tattoo of the Kitava Warrior" "Tattoo of the Kitava Heart Eater" "Tattoo of the Kitava Shaman" "Tattoo of the Kitava Makanga" "Tattoo of the Tukohama Shaman" "Tattoo of the Tukohama Warrior" "Tattoo of the Tukohama Brawler" "Tattoo of the Tukohama Warmonger" "Tattoo of the Tukohama Warcaller" "Tattoo of the Tukohama Makanga" "Tattoo of the Rongokurai Warrior" "Tattoo of the Rongokurai Brute" "Tattoo of the Rongokurai Goliath" "Tattoo of the Rongokurai Turtle" "Tattoo of the Rongokurai Guard" "Tattoo of the Rongokurai Makanga" "Tattoo of the Tasalio Bladedancer" "Tattoo of the Tasalio Tideshifter" "Tattoo of the Tasalio Shaman" "Tattoo of the Tasalio Warrior" "Tattoo of the Tasalio Scout" "Tattoo of the Tasalio Makanga" "Tattoo of the Arohongui Moonwarden" "Tattoo of the Arohongui Scout" "Tattoo of the Arohongui Warrior" "Tattoo of the Arohongui Warmonger" "Tattoo of the Arohongui Shaman" "Tattoo of the Arohongui Makanga" "Tattoo of the Ramako Scout" "Tattoo of the Ramako Archer" "Tattoo of the Ramako Sniper" "Tattoo of the Ramako Fleetfoot" "Tattoo of the Ramako Shaman" "Tattoo of the Ramako Makanga" "Tattoo of the Hinekora Warrior" "Tattoo of the Hinekora Deathwarden" "Tattoo of the Hinekora Shaman" "Tattoo of the Hinekora Storyteller" "Tattoo of the Hinekora Warmonger" "Tattoo of the Hinekora Makanga" "Tattoo of the Tawhoa Naturalist" "Tattoo of the Tawhoa Scout" "Tattoo of the Tawhoa Warrior" "Tattoo of the Tawhoa Herbalist" "Tattoo of the Tawhoa Shaman" "Tattoo of the Tawhoa Makanga" "Tattoo of the Valako Stormrider" "Tattoo of the Valako Scout" "Tattoo of the Valako Warrior" "Tattoo of the Valako Shieldbearer" "Tattoo of the Valako Shaman" "Tattoo of the Valako Makanga"
+SetTextColor 0 0 0
+SetBackgroundColor 210 178 135 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Orange Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\文身.mp3" 300
+DisableDropSound
 
-	cout << add(1, 1) << endl;
-	cout << add(1.1, 1.1) << endl;
-	cout << add(A(1), A(1)) << endl;
+Show # 通货 - 赛季通货 * -[命运试炼] - 预兆
+Class "Stackable Currency"
+BaseType "Omen of Amelioration" "Omen of Return" "Omen of Death-dancing" "Omen of Refreshment" "Omen of the Soul Devourer" "Omen of Acceleration" "Omen of Fortune" "Omen of the Jeweller" "Omen of Connections" "Omen of Blanching" "Omen of Revenge" "Omen of Bequeathal" "Omen of Resurgence" "Omen of Adrenaline" "Omen of Death's Door" "Omen of Brilliance"
+SetTextColor 130 27 229
+SetBackgroundColor 255 255 255
+SetBorderColor 130 27 229
+SetFontSize 45
+MinimapIcon 2 Purple Circle
+PlayEffect Purple
+#    PlayAlertSound 9 300
+CustomAlertSound "音效\预兆.mp3" 300
+DisableDropSound
 
-	return 0;
-}
-#endif
+Show # 通货 - 赛季通货 * -[禁忌圣域] - 莱西亚的恳求
+Class "Stackable Currency"
+BaseType "Lycia's Invocation of "
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Triangle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\莱西亚的恳求.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[卡兰德之湖] - 倒映薄雾
+BaseType "Reflecting Mist"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Yellow Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\倒映薄雾.mp3" 300
+
+
+Show # 通货 - 赛季通货 * -[灵能护卫] - 转换力量核心
+BaseType "Transforming Power Core"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Yellow Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\转换核心.mp3" 300
+
+
+Show # 通货 - 赛季通货 * -[灵能护卫] - 放大力量核心
+BaseType "Amplifying Power Core"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Yellow Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\放大核心.mp3" 300
+
+
+Show # 通货 - 赛季通货 * -[灵能护卫] - 增强力量核心
+BaseType "Augmenting Power Core"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Yellow Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\增强核心.mp3" 300
+
+
+Show # 通货 - 赛季通货 * -[灵能护卫] - 力量核心
+BaseType "Power Core"
+SetTextColor 0 0 0
+SetBackgroundColor 210 178 135 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 White Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\能量核心.mp3" 300
+
+
+Show # 通货 - 赛季通货 * -[灵能护卫] - 护甲重组器
+BaseType "Armour Recombinator"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 1 Pink Triangle
+PlayEffect Pink
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\护甲重组.mp3" 300
+
+
+Show # 通货 - 赛季通货 * -[灵能护卫] - 武器重组器
+BaseType "Weapon Recombinator"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 1 Pink Triangle
+PlayEffect Pink
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\武器重组.mp3" 300
+
+
+Show # 通货 - 赛季通货 * -[灵能护卫] - 首饰重组器
+BaseType "Jewellery Recombinator"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 1 Pink Triangle
+PlayEffect Pink
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\首饰重组.mp3" 300
+
+
+Show # 通货 - 赛季通货 * -[先祖密藏] - [异域铸币]
+Class "Stackable Currency"
+BaseType "Exotic Coinage"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Pink Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\异域铸币.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[先祖密藏] - [废金属]
+Class "Stackable Currency"
+BaseType "Scrap Metal"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Pink Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\废金属.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[先祖密藏] - [黄芪]
+Class "Stackable Currency"
+BaseType "Astragali"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Pink Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\黄芪.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[先祖密藏] - [葬礼徽章]
+Class "Stackable Currency"
+BaseType "Burial Medallion"
+SetTextColor 0 0 0
+SetBackgroundColor 150 219 237 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 2 Pink Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\葬礼徽章.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[驱灵仪式] - [驱灵裂片]
+Class "Stackable Currency"
+BaseType "Ritual Splinter"
+SetTextColor 74 230 58
+SetBackgroundColor 0 0 0
+SetBorderColor 74 230 58
+SetFontSize 45
+MinimapIcon 2 Green Square
+#    PlayAlertSound 11 300
+CustomAlertSound "音效\驱灵裂片.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[夺宝奇兵] - [赏金猎人印记] >= 90
+StackSize >= 90
+Class "Stackable Currency"
+BaseType "Rogue's Marker"
+SetTextColor 231 180 120
+SetBackgroundColor 0 0 0
+SetBorderColor 231 180 120
+SetFontSize 45
+MinimapIcon 2 Yellow Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\赏金印记.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[夺宝奇兵] - [赏金猎人印记]
+Class "Stackable Currency"
+BaseType "Rogue's Marker"
+SetTextColor 231 180 120
+SetBackgroundColor 0 0 0
+SetBorderColor 231 180 120
+SetFontSize 45
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\赏金印记.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[夺宝奇兵] - [回火石]
+Class "Stackable Currency"
+BaseType "Tempering Orb"
+SetTextColor 255 255 255
+SetBackgroundColor 255 40 0 230
+SetBorderColor 255 40 0 0
+SetFontSize 45
+MinimapIcon 0 Red Star
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\回火石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[夺宝奇兵] - [裁剪石]
+Class "Stackable Currency"
+BaseType "Tailoring Orb"
+SetTextColor 255 255 255
+SetBackgroundColor 255 40 0 230
+SetBorderColor 255 40 0 0
+SetFontSize 45
+MinimapIcon 0 Red Star
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\裁剪石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[夺宝奇兵] - [主要矫正透镜]
+Class "Stackable Currency"
+BaseType "Prime Regrading Lens"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Triangle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\矫正透镜.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[夺宝奇兵] - [次要矫正透镜]
+Class "Stackable Currency"
+BaseType "Secondary Regrading Lens"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Triangle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\矫正透镜.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[庄园] - [神圣紫晶命能]
+Class "Stackable Currency"
+BaseType "Sacred Crystallised Lifeforce"
+SetTextColor 255 255 255
+SetBackgroundColor 255 40 0 230
+SetBorderColor 255 40 0 0
+SetFontSize 45
+MinimapIcon 0 Red Triangle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\神圣命能.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[庄园] - [活性紫晶命能]
+Class "Stackable Currency"
+BaseType "Vivid Crystallised Lifeforce"
+SetTextColor 220 220 50
+SetBackgroundColor 44 44 10
+SetBorderColor 220 220 50
+SetFontSize 45
+MinimapIcon 1 Cyan Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\活性命能.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[庄园] - [原始紫晶命能]
+Class "Stackable Currency"
+BaseType "Primal Crystallised Lifeforce"
+SetTextColor 80 220 255
+SetBackgroundColor 16 44 51
+SetBorderColor 80 220 255
+SetFontSize 45
+MinimapIcon 2 Yellow Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\原始命能.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[庄园] - [狂野紫晶命能]
+Class "Stackable Currency"
+BaseType "Wild Crystallised Lifeforce"
+SetTextColor 200 80 180
+SetBackgroundColor 50 50 50
+SetBorderColor 200 80 180
+SetFontSize 45
+MinimapIcon 2 Yellow Triangle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\狂野命能.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[庄园] - [先驱升级卷轴]
+BaseType "Specularity Scroll" "Time-light Scroll" "Haemocombustion Scroll" "Electroshock Scroll" "Deregulation Scroll" "Fragmentation Scroll"
+SetTextColor 0 100 150 199
+SetBackgroundColor 255 255 255
+SetBorderColor 0 100 150 199
+SetFontSize 45
+MinimapIcon 1 Pink Triangle
+PlayEffect Pink
+#    PlayAlertSound 3 300
+CustomAlertSound "音效\先驱卷轴.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[惊悸迷雾] - [梦魇拟像裂片堆叠大于99]
+StackSize >= 99
+Class "Stackable Currency"
+BaseType "Simulacrum Splinter"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Square
+#    PlayAlertSound 2 300
+CustomAlertSound "音效\拟像碎片.mp3" 300
+DisableDropSound
+
+Show # 通货 - 赛季通货 * -[惊悸迷雾] - [梦魇拟像裂片堆叠大于3]
+StackSize >= 3
+Class "Stackable Currency"
+BaseType "Simulacrum Splinter"
+SetTextColor 74 230 58
+SetBackgroundColor 0 0 0
+SetBorderColor 74 230 58
+SetFontSize 45
+MinimapIcon 2 Green Square
+#    PlayAlertSound 11 300
+CustomAlertSound "音效\拟像碎片.mp3" 300
+DisableDropSound
