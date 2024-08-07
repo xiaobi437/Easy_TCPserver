@@ -399,3 +399,254 @@ MinimapIcon 2 Green Square
 #    PlayAlertSound 11 300
 CustomAlertSound "音效\拟像碎片.mp3" 300
 DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [统御宝珠]
+Class "Stackable Currency"
+BaseType "Orb of Dominance"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\统御宝珠.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [觉醒者之石]
+Class "Stackable Currency"
+BaseType "Awakener's Orb"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\觉醒石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [督军的崇高石]
+Class "Stackable Currency"
+BaseType "Warlord's Exalted Orb"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\超级崇高石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [猎人的崇高石]
+Class "Stackable Currency"
+BaseType "Hunter's Exalted Orb"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\超级崇高石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [救赎者的崇高石]
+Class "Stackable Currency"
+BaseType "Redeemer's Exalted Orb"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\超级崇高石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [圣战者的崇高石]
+Class "Stackable Currency"
+BaseType "Crusader's Exalted Orb"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\超级崇高石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [古灵崇高石]
+Class "Stackable Currency"
+BaseType "Eldritch Exalted Orb"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 3 300
+CustomAlertSound "音效\古灵崇高石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [古灵混沌石]
+Class "Stackable Currency"
+BaseType "Eldritch Chaos Orb"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 3 300
+CustomAlertSound "音效\古灵混沌石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [古灵剥离石]
+Class "Stackable Currency"
+BaseType "Eldritch Orb of Annulment"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 3 300
+CustomAlertSound "音效\古灵剥离石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污染神泪]
+Class "Stackable Currency"
+BaseType "Tainted Divine Teardrop"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 5 300
+CustomAlertSound "音效\污染神泪.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽祝福]
+Class "Stackable Currency"
+BaseType "Tainted Blessing"
+SetTextColor 153 63 131
+SetBackgroundColor 255 255 255
+SetBorderColor 153 63 131
+SetFontSize 45
+MinimapIcon 1 Cyan Circle
+PlayEffect Cyan
+#    PlayAlertSound 3 300
+CustomAlertSound "音效\污秽祝福.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽神秘石]
+Class "Stackable Currency"
+BaseType "Tainted Mythic Orb"
+SetTextColor 153 63 131
+SetBackgroundColor 255 255 255
+SetBorderColor 153 63 131
+SetFontSize 45
+MinimapIcon 0 Cyan Circle
+PlayEffect Cyan
+#    PlayAlertSound 3 300
+CustomAlertSound "音效\污秽神秘石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽崇高石]
+Class "Stackable Currency"
+BaseType "Tainted Exalted Orb"
+SetTextColor 153 63 131
+SetBackgroundColor 255 255 255
+SetBorderColor 153 63 131
+SetFontSize 45
+MinimapIcon 0 Cyan Circle
+PlayEffect Cyan
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\污秽崇高石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽混沌石]
+Class "Stackable Currency"
+BaseType "Tainted Chaos Orb"
+SetTextColor 153 63 131
+SetBackgroundColor 255 255 255
+SetBorderColor 153 63 131
+SetFontSize 45
+MinimapIcon 0 Cyan Circle
+PlayEffect Cyan
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\污秽混沌石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽工匠石]
+Class "Stackable Currency"
+BaseType "Tainted Jeweller's Orb"
+SetTextColor 0 0 0
+SetBackgroundColor 249 150 25 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 1 Yellow Circle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\污秽工匠石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽幻色石]
+Class "Stackable Currency"
+BaseType "Tainted Chromatic Orb"
+SetTextColor 0 0 0
+SetBackgroundColor 249 150 25 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 1 Yellow Circle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\污秽幻色石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽链结石]
+Class "Stackable Currency"
+BaseType "Tainted Orb of Fusing"
+SetTextColor 0 0 0
+SetBackgroundColor 249 150 25 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 1 Yellow Circle
+#    PlayAlertSound 12 300
+CustomAlertSound "音效\污秽链结石.mp3" 300
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽磨刀石]
+Class "Stackable Currency"
+BaseType "Tainted Blacksmith's Whetstone"
+SetTextColor 0 0 0
+SetBackgroundColor 249 150 25 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 1 Yellow Circle
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [污秽护甲片]
+Class "Stackable Currency"
+BaseType "Tainted Armourer's Scrap"
+SetTextColor 0 0 0
+SetBackgroundColor 249 150 25 255
+SetBorderColor 0 0 0
+SetFontSize 45
+MinimapIcon 1 Yellow Circle
+DisableDropSound
+
+Show # 通货 - 基础通货 * -外来通货 - [卓越古灵溶液]
+Class "Stackable Currency"
+BaseType "Exceptional Eldritch Ichor"
+SetTextColor 255 0 0
+SetBackgroundColor 255 255 255
+SetBorderColor 255 0 0
+SetFontSize 45
+MinimapIcon 0 Red Circle
+PlayEffect Red
+#    PlayAlertSound 3 300
+CustomAlertSound "音效\古灵溶液.mp3" 300
+DisableDropSound
