@@ -213,29 +213,7 @@ MinimapIcon 2 Pink Triangle
 CustomAlertSound "ÒôÐ§\»ÆÜÎ.mp3" 300
 DisableDropSound
 
-Show # Í¨»õ - Èü¼¾Í¨»õ * -[ÏÈ×æÃÜ²Ø] - [ÔáÀñ»ÕÕÂ]
-Class "Stackable Currency"
-BaseType "Burial Medallion"
-SetTextColor 0 0 0
-SetBackgroundColor 150 219 237 255
-SetBorderColor 0 0 0
-SetFontSize 45
-MinimapIcon 2 Pink Triangle
-#    PlayAlertSound 12 300
-CustomAlertSound "ÒôÐ§\ÔáÀñ»ÕÕÂ.mp3" 300
-DisableDropSound
 
-Show # Í¨»õ - Èü¼¾Í¨»õ * -[ÇýÁéÒÇÊ½] - [ÇýÁéÁÑÆ¬]
-Class "Stackable Currency"
-BaseType "Ritual Splinter"
-SetTextColor 74 230 58
-SetBackgroundColor 0 0 0
-SetBorderColor 74 230 58
-SetFontSize 45
-MinimapIcon 2 Green Square
-#    PlayAlertSound 11 300
-CustomAlertSound "ÒôÐ§\ÇýÁéÁÑÆ¬.mp3" 300
-DisableDropSound
 
 Show # Í¨»õ - Èü¼¾Í¨»õ * -[¶á±¦Ææ±ø] - [ÉÍ½ðÁÔÈËÓ¡¼Ç] >= 90
 StackSize >= 90

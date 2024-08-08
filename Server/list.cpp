@@ -582,52 +582,6 @@ PlayEffect Cyan
 CustomAlertSound "音效\污秽混沌石.mp3" 300
 DisableDropSound
 
-Show # 通货 - 基础通货 * -外来通货 - [污秽工匠石]
-Class "Stackable Currency"
-BaseType "Tainted Jeweller's Orb"
-SetTextColor 0 0 0
-SetBackgroundColor 249 150 25 255
-SetBorderColor 0 0 0
-SetFontSize 45
-MinimapIcon 1 Yellow Circle
-#    PlayAlertSound 12 300
-CustomAlertSound "音效\污秽工匠石.mp3" 300
-DisableDropSound
-
-Show # 通货 - 基础通货 * -外来通货 - [污秽幻色石]
-Class "Stackable Currency"
-BaseType "Tainted Chromatic Orb"
-SetTextColor 0 0 0
-SetBackgroundColor 249 150 25 255
-SetBorderColor 0 0 0
-SetFontSize 45
-MinimapIcon 1 Yellow Circle
-#    PlayAlertSound 12 300
-CustomAlertSound "音效\污秽幻色石.mp3" 300
-DisableDropSound
-
-Show # 通货 - 基础通货 * -外来通货 - [污秽链结石]
-Class "Stackable Currency"
-BaseType "Tainted Orb of Fusing"
-SetTextColor 0 0 0
-SetBackgroundColor 249 150 25 255
-SetBorderColor 0 0 0
-SetFontSize 45
-MinimapIcon 1 Yellow Circle
-#    PlayAlertSound 12 300
-CustomAlertSound "音效\污秽链结石.mp3" 300
-DisableDropSound
-
-Show # 通货 - 基础通货 * -外来通货 - [污秽磨刀石]
-Class "Stackable Currency"
-BaseType "Tainted Blacksmith's Whetstone"
-SetTextColor 0 0 0
-SetBackgroundColor 249 150 25 255
-SetBorderColor 0 0 0
-SetFontSize 45
-MinimapIcon 1 Yellow Circle
-DisableDropSound
-
 Show # 通货 - 基础通货 * -外来通货 - [污秽护甲片]
 Class "Stackable Currency"
 BaseType "Tainted Armourer's Scrap"
