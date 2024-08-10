@@ -24,9 +24,6 @@
     <ClCompile Include="Memory_Pool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="list.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="data.lua">

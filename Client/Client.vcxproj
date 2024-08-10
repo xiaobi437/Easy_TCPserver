@@ -161,7 +161,6 @@
   <ItemGroup>
     <ClCompile Include="..\Server\Memory_Pool.cpp" />
     <ClCompile Include="Easy_TcpClient.cpp" />
-    <ClCompile Include="list.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data.lua" />
