@@ -29,5 +29,6 @@
     <None Include="data.lua">
       <Filter>源文件</Filter>
     </None>
+    <None Include="HTMLPage.htm" />
   </ItemGroup>
 </Project>
