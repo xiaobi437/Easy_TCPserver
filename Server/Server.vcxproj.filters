@@ -30,5 +30,16 @@
       <Filter>源文件</Filter>
     </None>
     <None Include="HTMLPage.htm" />
+    <None Include="html1.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Server.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
