@@ -163,21 +163,6 @@
     <ClCompile Include="ObjectPool.cpp" />
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="data.lua" />
-    <None Include="html1.htm">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="HTMLPage.htm">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="resource.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Server.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

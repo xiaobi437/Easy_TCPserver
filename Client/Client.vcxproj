@@ -162,9 +162,6 @@
     <ClCompile Include="..\Server\Memory_Pool.cpp" />
     <ClCompile Include="Easy_TcpClient.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="data.lua" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
