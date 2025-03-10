@@ -1,0 +1,2 @@
+PlatformToolSet=v142:VCToolArchitecture=Native32Bit:VCToolsVersion=14.29.30133:VCServicingVersionMFC=14.29.30136:TargetPlatformVersion=10.0.19041.0:
+Debug|x64|D:\c++\xuexi\socket_thread网络模型\select_thread1.6（select模型异步发送、分离消息缓冲区、添加日志）\|
