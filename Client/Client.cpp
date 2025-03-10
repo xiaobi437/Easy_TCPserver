@@ -5,7 +5,7 @@ std::atomic<int> sendCount;
 std::atomic<int> recvCount;
 
 const int tCount = 4; // 线程数量
-const int cCount = 100; // 客户端数量
+const int cCount = 1000; // 客户端数量
 bool flag = true;	  // 结束标志位
 
 int cmd_flag()

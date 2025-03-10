@@ -1,5 +1,5 @@
 ﻿#include "Server.h"
-
+//業務接口
 class MyServer :virtual public Server
 {
 public:
