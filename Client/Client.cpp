@@ -1,290 +1,93 @@
-ï»¿#include "client.h"
+#define WIN32_LEAN_AND_MEAN		//Õâ¸öºê¿ÉÒÔ¾¡Á¿±ÜÃâÔçÆÚµÄºêºÍÆäËûÒÀÀµ¿âµÄÊ¹ÓÃ
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
-std::atomic<int> readyCount;
-std::atomic<int> sendCount;
-std::atomic<int> recvCount;
+#include <winsock2.h> //Õâ¸öÒªĞ´ÔÚwindowsÇ°Ãæ,²»È»»á±¨´í,Èç¹û±¨´í¾ÍĞèÒªÌí¼Óºê #define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <iostream>
 
-const int tCount = 4; // çº¿ç¨‹æ•°é‡
-const int cCount = 1000; // å®¢æˆ·ç«¯æ•°é‡
-bool flag = true;	  // ç»“æŸæ ‡å¿—ä½
+//Æô¶¯windowsÍøÂç¿âµÄÁ½¸ö·½·¨
+#pragma comment(lib,"ws2_32.lib")		   //Õâ¸ö·½·¨ÔÚÔÚwindowsÏÂÃ»ÎÊÌâ£¬µ«ÊÇÒª¿çÆ½Ì¨¾Í²»ĞĞ
+//µÚ¶ş¸ö·½·¨£º¹¤³ÌÊôĞÔ->Á´½ÓÆ÷->ÊäÈë->¸½¼şÒÀÀµÏîÖĞÌí¼Ó ws2_32.lib Õâ¸ö¿â£¨×¢Òâ£¬Ö»ÔÚdebugºÍreleaseÏÂÌí¼Ó£¬²»ÒªËùÓĞ£©
 
-int cmd_flag()
+
+//ÍøÂç±¨ÎÄ¸ñÊ½£º°üÍ·+°üÌå
+//°üÍ·
+enum CMD {
+	CMD_LOGIN,
+	CMD_LOGIN_RET,
+	CMD_LOGINOUT,
+	CMD_LOGINOUT_RET,
+	CMD_ERROR
+};
+struct DataHeader {
+	short cmd;
+	short dataLength;
+};
+//°üÌå
+struct Login :public DataHeader 
 {
-	char buf[128] = {};
-	while (true)
-	{
-		memset(buf, 0, sizeof(buf));
-		std::cin >> buf;
-		if (strcmp(buf, "exit") == 0)
-		{
-			flag = false;
-			break;
-		}
-		else
-		{
-			printf("order error!\n");
-			continue;
-		}
+	Login() {
+		cmd = CMD_LOGIN;
+		dataLength = sizeof(Login);
 	}
-	printf("cmd_flag() Exit\n");
-	return 0;
-}
-
-void recv_Thread(Client *clients[], int begin, int end, int id)
+	char userName[32];
+	char PassWord[32];
+};
+struct LoginResult :public DataHeader	//µÇÂ¼·µ»ØÊı¾İ
 {
-	printf("thread_recv() %d <begin=%d,end=%d> start\n", id, begin, end);
-	CELLTimestamp t;
-	while (flag)
-	{
-
-		for (int n = begin; n < end; n++)
-		{
-			if(t.getElapsedSecond()>3.0 && n == begin)
-				continue;
-			if (!clients[n]->onRun())
-			{
-				flag = false;
-				printf("recv_Thread() %d onRun failed\n", id);
-			}
-			recvCount++;
-		}
+	LoginResult() {
+		cmd = CMD_LOGIN_RET;
+		dataLength = sizeof(LoginResult);
 	}
-	printf("recv_Thread() %d Exit\n", id);
-}
-void send_Thread(Client *clients[], const int cCount, int id)
-{
-	int cnumber = cCount / tCount;
-	int begin = (id - 1) * cnumber; // ä»é›¶å¼€å§‹
-	int end = id * cnumber;
-
-	for (int n = begin; n < end; n++)
-	{
-		clients[n] = new Client();
+	int result;
+};
+struct LoginOut :public DataHeader		//µÇ³ö
+{		
+	LoginOut() {
+		cmd = CMD_LOGINOUT;
+		dataLength = sizeof(LoginOut);
 	}
-
-	for (int n = begin; n < end; n++)
-	{
-#if 1
-		clients[n]->Connect("192.168.31.240", 10000);
-#else
-		clients[n]->Connect("192.168.31.241", 10001);
-#endif
+	char userName[32];
+};
+struct LoginOutResult :public DataHeader	//µÇ³ö·µ»ØÊı¾İ
+{		
+	LoginOutResult() {
+		cmd = CMD_LOGINOUT_RET;
+		dataLength = sizeof(LoginOutResult);
 	}
-	printf("thread_send() %d  Connect<begin=%d,end=%d>\n", id, begin, end);
-	readyCount++;
-	while (readyCount < tCount)
-	{
-		std::chrono::milliseconds t(10);
-		std::this_thread::sleep_for(t);
-	}
-	// å¯åŠ¨æ¥æ”¶çº¿ç¨‹
-	std::thread t1(recv_Thread, clients, begin, end, id);
-	t1.detach();
+	int result;
+};
 
-	Login login[1] = {};
-	for (int n = 0; n < 1; n++)
-	{
-		strcpy(login[n].userName, "root");
-		strcpy(login[n].PassWord, "root");
-	}
 
-	const int nLen = sizeof(login);
-	while (flag)
-	{
+using namespace std;
 
-		for (int n = begin; n < end; n++)
-		{
-			if (clients[n]->SendData(login, nLen) == -1)
-			{
-				flag = false;
-				printf("recv_Thread() %d onRun failed\n", id);
-			}
-			sendCount++;
-		}
-	}
-	for (int n = begin; n < end; n++)
-	{
-		delete clients[n];
-	}
-	printf("send_Thread() %d Exit\n", id);
-}
-
-int main(int argc, char *argv[])
-{
-	Client *clients[cCount];
-
-	readyCount = 0;
-	sendCount = 0;
-	recvCount = 0;
-
-	std::chrono::seconds time_s_1(1);
-
-	// å¯åŠ¨å‘é€çº¿ç¨‹
-	for (int i = 0; i < tCount; i++)
-	{
-		std::thread t1(send_Thread, clients, cCount, i + 1);
-		t1.detach();
-	}
-
-	// å¯åŠ¨UIçº¿ç¨‹
-	std::thread t1(cmd_flag);
-	t1.detach();
-
-	// è®¡æ—¶å™¨
-	CELLTimestamp tTime;
-	while (readyCount < tCount)
-	{
-		std::this_thread::sleep_for(time_s_1);
-	}
-	while (flag)
-	{
-		auto t = tTime.getElapsedSecond();
-		if (t >= 1.0)
-		{
-			printf("thread<%d>,client<%d>,Time<%lf>, sendCount<%d>, recvCount<%d>\n", tCount, cCount, t, (int)(sendCount / t), (int)(recvCount / t));
-			tTime.update();
-			sendCount = 0;
-			recvCount = 0;
-		}
-		
-		std::this_thread::sleep_for(time_s_1);
-	}
-
-	printf("æœåŠ¡å™¨é€€å‡ºä»»åŠ¡ç»“æŸ\n");
-	std::this_thread::sleep_for(time_s_1);
-	return 0;
-}
-
-int Client::Init_sock()
-{
-#ifdef _WIN32
-	// å¯åŠ¨win sock 2.xç½‘ç»œ
-	WORD ver = MAKEWORD(2, 2);
-	WSADATA dat;
-	if (WSAStartup(ver, &dat) == SOCKET_ERROR)
-	{
-		printf("WSAStartup failed!\n");
-		return -1;
-	}
-#endif //  _WIN32
-	if (_sock != INVALID_SOCKET)
-	{
-		Close_sock();
-	}
-	// åˆ›å»ºsocketå¥—æ¥å­—
-	_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (_sock == SOCKET_ERROR)
-	{
-		printf("socket failed!\n");
-		return -1;
-	}
-	else
-	{
-		// printf("socket :%d\n", (int)_sock);
-	}
-
-	return 0;
-}
-
-int Client::Connect(const char *ip, unsigned short port)
-{
+int processor(const SOCKET _sock) {
+	
 	int ret;
-	if (_sock == INVALID_SOCKET)
-	{
-		Init_sock();
-	}
-	// å®šä¹‰IPV4åœ°å€ç»“æ„ä½“ï¼Œç”¨äºå­˜æ”¾æœåŠ¡å™¨ä¿¡æ¯
-	sockaddr_in sin_server = {};
-	sin_server.sin_family = AF_INET;
-	sin_server.sin_port = htons(port);
-#ifdef _WIN32
-	sin_server.sin_addr.S_un.S_addr = inet_addr(ip);
-#else
-	sin_server.sin_addr.s_addr = inet_addr(ip);
-#endif // _WIN32
-	ret = connect(_sock, (sockaddr *)&sin_server, sizeof(sin_server));
-	if (ret == SOCKET_ERROR)
-	{
-		printf("connect<%s:%d> failed!\n", ip, port);
+	char cmd_buf[5][20] = { "CMD_LOGIN","CMD_LOGIN_RET","CMD_LOGINOUT","CMD_LOGINOUT_RET","CMD_ERROR" };
+
+	DataHeader data_head = {};
+	ret = recv(_sock, (char*)&data_head, sizeof(DataHeader), 0);
+	if (ret <= 0) {
+		cout << "server is down" << endl;
 		return -1;
 	}
-	else
-	{
-		// printf("è¿æ¥æœåŠ¡å™¨<%s:%d>æˆåŠŸ....\n", ip, port);
-	}
-	return ret;
-}
-
-int Client::Close_sock()
-{
-	if (_sock != INVALID_SOCKET)
-	{
-#ifdef _WIN32
-		closesocket(_sock);
-		WSACleanup();
-#else
-		close(_sock);
-#endif // _WIN32
-		_sock = INVALID_SOCKET;
-	}
-	return 0;
-}
-
-// æ¥æ”¶æ•°æ® å¤„ç†ç²˜åŒ… æ‹†åˆ†åŒ…
-int Client::RecvData(SOCKET cSock)
-{
-	// ç›´æ¥æŠŠæ•°æ®æ‹·è´åˆ°å®¢æˆ·ç«¯çš„ç¼“å†²åŒºï¼Œå°±å…å»äº†æ‹·è´çš„æ­¥éª¤
-	char *szRecv = _szMsgBuf + _lastPos;
-	// æ¥æ”¶æ•°æ®å­˜åˆ°æ¥æ”¶ç¼“å†²åŒºï¼Œæ¥æ”¶å¤§å°ç¼“å†²åŒºå¤§å°ï¼ˆ50KBï¼‰
-	int nLen = recv(cSock, szRecv, (RECV_BUFF_SIZE * 5) - _lastPos, 0);
-	if (nLen <= 0)
-	{
-		printf("æ¥æ”¶æœåŠ¡å™¨<socket:%d>æ¶ˆæ¯å¤±è´¥....\n", (int)cSock);
-		return -1;
-	}
-	// æŠŠæ¥æ”¶ç¼“å†²åŒºçš„æ•°æ®æ‹·è´åˆ°æ¶ˆæ¯ç¼“å†²åŒº,æ¥æ”¶åˆ°å¤šå°‘å°±æ‹·è´å¤šå°‘
-	// memcpy(_szMsgBuf + _lastPos, _szRecv, nLen);
-	// è®°å½•ç¼“å†²åŒºæ•°æ®æœ€åçš„ä½ç½®,å½“æœ‰æ–°çš„æ•°æ®æ¥æ”¶çš„æ—¶å€™å°±å¯ä»¥ä½¿ç”¨è¿™ä¸ªä½ç½®ç»§ç»­å­˜æ”¾æ•°æ®
-	_lastPos += nLen;
-	// åˆ¤æ–­ä¸€ä¸‹æ¶ˆæ¯ç¼“å­˜åŒºçš„æ•°æ®æ˜¯ç”±å¤§äºæ¶ˆæ¯å¤´,ä¸€ç›´å¾ªç¯å¤„ç†
-	while (_lastPos >= sizeof(DataHeader))
-	{
-		DataHeader *data_head = (DataHeader *)_szMsgBuf;
-		// åˆ¤æ–­æ¶ˆæ¯ç¼“å†²åŒºçš„æ•°æ®é•¿åº¦æ˜¯å¦å¤§äºæ¶ˆæ¯é•¿åº¦
-		if (_lastPos >= data_head->dataLength)
-		{
-			// å¾—åˆ°ç¬¬äºŒç¼“å†²åŒºå‰©ä½™æœªå¤„ç†çš„æ•°æ®é•¿åº¦ï¼ŒåŸæœ¬é•¿åº¦-å¤„ç†é•¿åº¦=å‰©ä½™é•¿åº¦
-			int nSize = _lastPos - data_head->dataLength;
-			// å¤„ç†ç½‘ç»œæ¶ˆæ¯
-			onNetMsg(data_head);
-			// å°†æ¶ˆæ¯ç¼“å†²åŒºå‰©ä½™æœªå¤„ç†æ•°æ®å‰ç§»
-			memcpy(_szMsgBuf, _szMsgBuf + data_head->dataLength, nSize);
-			// å°†ç¬¬äºŒç¼“å†²åŒºçš„æ•°æ®å°¾éƒ¨ä½ç½®å¾€å‰ç§»
-			_lastPos = nSize;
-		}
-		else
-		{
-			// æ¶ˆæ¯ç¼“å†²åŒºå‰©ä½™æ•°æ®ä¸å¤Ÿå®Œæ•´ä¸€æ¡ä¿¡æ¯
-			break;
-		}
-	}
-	return 0;
-}
-
-int Client::onNetMsg(DataHeader *data_head)
-{
-	char cmd_buf[6][20] = {"CMD_LOGIN", "CMD_LOGIN_RET", "CMD_LOGINOUT", "CMD_LOGINOUT_RET", "CMD_NEW_LOGIN", "CMD_ERROR"};
-	switch (data_head->cmd)
-	{
+	switch (data_head.cmd) {
 	case CMD_LOGIN:
 	{
 		break;
 	}
 	case CMD_LOGIN_RET:
 	{
-		LoginResult *login_result = (LoginResult *)data_head;
-		//		printf("æ”¶åˆ°æœåŠ¡å™¨<socket:%d>å‘½ä»¤:%s, æ•°æ®é•¿åº¦:%d, ç»“æœ:%d\n", _sock, cmd_buf[data_head->cmd], data_head->dataLength, login_result->result);
-		break;
+		//½ÓÊÕ·şÎñÆ÷·¢ËÍµÄ°üÍ·Êı¾İ
+		LoginResult login_result = {};
+		ret = recv(_sock, (char*)&login_result + sizeof(DataHeader), sizeof(LoginResult) - sizeof(DataHeader), 0);
+		if (ret <= 0) {
+			cout << "server is down" << endl;
+			break;
+		}
+		printf("ÊÕµ½ÃüÁî£º%s£¬Êı¾İ³¤¶È£º%d£¬µÇÂ¼½á¹û£º%d\n", cmd_buf[login_result.cmd], login_result.dataLength, login_result.result);
 	}
 	case CMD_LOGINOUT:
 	{
@@ -292,93 +95,132 @@ int Client::onNetMsg(DataHeader *data_head)
 	}
 	case CMD_LOGINOUT_RET:
 	{
-		LoginOutResult *loginout_result = (LoginOutResult *)data_head;
-		printf("æ”¶åˆ°æœåŠ¡å™¨<socket:%d>å‘½ä»¤:%s, æ•°æ®é•¿åº¦:%d, ç»“æœ:%d\n", (int)_sock, cmd_buf[data_head->cmd], data_head->dataLength, loginout_result->result);
-		break;
-	}
-	case CMD_NEW_LOGIN:
-	{
-		NewLogin *new_login = (NewLogin *)data_head;
-		// printf("æ”¶åˆ°æœåŠ¡å™¨<socket:%d>å‘½ä»¤:%s, æ•°æ®é•¿åº¦:%d, æ¶ˆæ¯:", _sock, cmd_buf[data_head->cmd], data_head->dataLength);
-		// printf("æ–°å®¢æˆ·ç«¯è¿æ¥<socket:%dï¼Œ%s:%d>\n", new_login->sock, new_login->IP, new_login->Port);
-		break;
-	}
-	case CMD_ERROR:
-	{
-		printf("æ”¶åˆ°æœåŠ¡å™¨<socket:%d>å‘½ä»¤:%s, æ•°æ®é•¿åº¦:%d\n", (int)_sock, cmd_buf[data_head->cmd], data_head->dataLength);
+		//½ÓÊÕ·şÎñÆ÷·¢ËÍµÄ°üÍ·Êı¾İ
+		LoginOutResult loginout_result = {};
+		ret = recv(_sock, (char*)&loginout_result + sizeof(DataHeader), sizeof(LoginOutResult) - sizeof(DataHeader), 0);
+		if (ret <= 0) {
+			cout << "client is down" << endl;
+			break;
+		}
+		printf("ÊÕµ½ÃüÁî£º%s£¬Êı¾İ³¤¶È£º%d£¬µÇÂ¼½á¹û£º%d\n", cmd_buf[loginout_result.cmd], loginout_result.dataLength, loginout_result.result);
 		break;
 	}
 	default:
-		printf("æ”¶åˆ°æœåŠ¡å™¨<socket:%d>æœªçŸ¥æ•°æ®, æ•°æ®é•¿åº¦:%d\n", (int)_sock, data_head->dataLength);
 		break;
 	}
 	return 0;
 }
+int main(int argc, char* argv[]) {
 
-int Client::SendData(DataHeader *data_head, int nLen)
-{
 	int ret;
-	if (isRun() && data_head != nullptr)
-	{
-		// å‘æœåŠ¡å™¨å‘é€æ•°æ®
-		ret = send(_sock, (char *)data_head, nLen, 0); // æ•°æ®
-		if (ret <= 0)
-		{
-			printf("å‘æœåŠ¡å™¨<socket:%d>å‘é€æ¶ˆæ¯å¤±è´¥....\n", (int)_sock);
-			return ret;
-		}
+	char cmd_buf[5][20] = { "CMD_LOGIN","CMD_LOGIN_RET","CMD_LOGINOUT","CMD_LOGINOUT_RET","CMD_ERROR" };
+	//´´½¨°æ±¾ºÅ£¬ÊÇÎÒÃÇÊ¹ÓÃµÄÊÇsock2.2£¬ÊäÈë×îºÃÒ²ÊÇ2.2¡£²ÎÊı1£º¸ßÎ»×Ö½ÚÖ¸¶¨´ÎÒª°æ±¾ºÅ£¬²ÎÊı2£ºµÍÎ»×Ö½ÚÖ÷Òª°æ±¾ºÅ
+	WORD ver = MAKEWORD(2, 2);
+	//Ö¸ÏòWSADATAÊı¾İ½á¹¹µÄÖ¸Õë, ¸ÃÊı¾İ½á¹¹½«½ÓÊÕWindowsÌ×½Ó×ÖÊµÏÖµÄÏêÏ¸ĞÅÏ¢¡£
+	WSADATA dat;
+	//Æô¶¯windowsÍøÂç¿â
+	if (SOCKET_ERROR == WSAStartup(ver, &dat)) {		//Æô¶¯Õâ¸ö¿âĞèÒªÁ´½Ó¾²Ì¬¿â£¬ÓĞÁ½¸ö°ì·¨
+		cout << "WSAStartup failed" << endl;
+		return -1;
 	}
 
-	return ret;
-}
+	//1¡¢socket ´´½¨Ì×½Ó×Ö£¬IPV4£¬ÃæÏòÊı¾İÁ÷£¬TCPĞ­Òé
+	SOCKET _sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (_sock == SOCKET_ERROR) {
+		cout << "socket failed" << endl;
+		return -1;
+	}
 
-bool Client::onRun()
-{
-	if (isRun())
-	{
-		int ret;
-		// åˆ›å»º ä¼¯å…‹åˆ©socketæè¿°ç¬¦åˆé›†
-		fd_set fd_Read; // è¯»
-		// åˆå§‹åŒ–,æ¸…ç©º
-		FD_ZERO(&fd_Read);
-		// ç›‘è§†æ˜¯å¦å¯æ“ä½œ
-		FD_SET(_sock, &fd_Read); // è¯»
+	//3¡¢connect Á¬½á·şÎñ¶Ë
+	//¶¨ÒåIPV4µØÖ·½á¹¹Ìå£¬ÓÃÓÚ´æ·Å·şÎñ¶ËµÄIP£¬¶Ë¿ÚºÅ
+	sockaddr_in _sin_server = {};
+	_sin_server.sin_family = AF_INET;		//IPV4Ğ­Òé
+	_sin_server.sin_port = htons(10001);	//¶Ë¿ÚºÅ
+	_sin_server.sin_addr.S_un.S_addr = inet_addr("192.168.31.240");  //ip
 
-		// è®¾ç½®è¶…æ—¶æ—¶é—´,è®©selectå˜éé˜»å¡
-		timeval t = {0, 0};
-		// å‚æ•°:ä¼¯å…‹åˆ©socketï¼ˆsocket+1ï¼‰,
-		// nfds æ˜¯ä¸€ä¸ªæ•´æ•°å€¼,æ˜¯æŒ‡fd_seté›†åˆä¸­æ‰€æœ‰æè¿°ç¬¦ï¼ˆsocketï¼‰çš„èŒƒå›´,è€Œä¸æ˜¯æ•°é‡
-		// æ—¢æ˜¯æ‰€æœ‰æ–‡ä»¶æè¿°ç¬¦æœ€å¤§å€¼+1,åœ¨windowsä¸­å¯ä»¥å†™0ï¼›
+	if (connect(_sock, (sockaddr*)&_sin_server, sizeof(_sin_server)) == SOCKET_ERROR) {
+		cout << "connect failed" << endl;
+		return -1;
+	}else {
+		cout << "Connecting to the server succeeded...." << endl;
+	}
+
+	char buf[128] = {};
+	//´´½¨ ²®¿ËÀûsocketÃèÊö·ûºÏ¼¯
+	fd_set fd_Read;		//¶Á
+	fd_set fd_Write;	//Ğ´
+	fd_set fd_Excep;	//Òì³£
+	//³õÊ¼»¯£¬Çå¿Õ
+	FD_ZERO(&fd_Read);
+	FD_ZERO(&fd_Write);
+	FD_ZERO(&fd_Excep);
+
+	while (1) {
+		//¼àÊÓÊÇ·ñ¿É²Ù×÷
+		FD_SET(_sock, &fd_Read);		//¶Á
+		FD_SET(_sock, &fd_Write);
+		FD_SET(_sock, &fd_Excep);
+
+		//ÉèÖÃ³¬Ê±Ê±¼ä£¬ÈÃselect±ä·Ç×èÈû
+		timeval t = { 0,0 };
+		//²ÎÊı£º²®¿ËÀûsocket£¨socket+1£©£¬
+		//nfds ÊÇÒ»¸öÕûÊıÖµ£¬ÊÇÖ¸fd_set¼¯ºÏÖĞËùÓĞÃèÊö·û£¨socket£©µÄ·¶Î§£¬¶ø²»ÊÇÊıÁ¿
+		//¼ÈÊÇËùÓĞÎÄ¼şÃèÊö·û×î´óÖµ+1£¬ÔÚwindowsÖĞ¿ÉÒÔĞ´0£»
 		ret = select(_sock + 1, &fd_Read, NULL, NULL, &t);
-		if (ret < 0)
-		{
-			printf("select<socket:%d> failed!\n", (int)_sock);
-			Close_sock();
-			return false;
+		if (ret < 0) {
+			printf("select failed!\n");
+			break;
 		}
-		// å¥—æ¥å­—æ˜¯å¦å‘ç”Ÿäº†è¯»å°±ç»ª-->è¯´æ˜æœ‰æœåŠ¡ç«¯æœ‰æ¶ˆæ¯
-		if (FD_ISSET(_sock, &fd_Read))
-		{
-			if (RecvData(_sock) == -1)
-			{
-				printf("æœåŠ¡å™¨é€€å‡ºï¼Œä»»åŠ¡ç»“æŸ\n");
-				Close_sock();
-				return false;
+		//Ì×½Ó×ÖÊÇ·ñ·¢ÉúÁË¶Á¾ÍĞ÷-->ËµÃ÷ÓĞ·şÎñ¶ËÓĞÏûÏ¢
+		if (FD_ISSET(_sock, &fd_Read)) {
+			FD_CLR(_sock, &fd_Read);
+			if (processor(_sock) == -1) {
+				cout << "Óë·şÎñÆ÷¶Ï¿ªÁ¬½Ó" << endl;
+				break;
 			}
 		}
-	}
+		//cout << "¿ÕÓàÊ±¼ä£¬´¦ÀíÆäËûÒµÎñ" << endl;
+		int a=rand() % 2;
+		switch(a)
+		{
+			case 1: 
+			{
+				Login login = {};
+				strcpy(login.userName, "root");
+				strcpy(login.PassWord, "root");
 
-	return true;
-}
+				//Ïò·şÎñÆ÷·¢ËÍÊı¾İ
+				ret = send(_sock, (char*)&login, sizeof(Login), 0);	//Êı¾İ
+				if (ret <= 0) {
+					cout << "server is down" << endl;
+					break;
+				}
+				break;
+			}
+			case 2:
+			{
+				LoginOut loginout = {};
+				strcpy(loginout.userName, "root");
 
-bool Client::isRun()
-{
-	if (_sock != INVALID_SOCKET)
-	{
-		return true;
+				//Ïò·şÎñÆ÷·¢ËÍÊı¾İ
+				ret = send(_sock, (char*)&loginout, sizeof(LoginOut), 0);
+				if (ret <= 0) {
+					cout << "server is down" << endl;
+					break;
+				}
+				break;
+			}
+			default:
+				break;
+		}
+		Sleep(1);
 	}
-	else
-	{
-		return false;
-	}
+	
+	//5¡¢¹Ø±Õsocket
+	closesocket(_sock);
+
+	//¹Ø±ÕwindowsÍøÂç¿â
+	WSACleanup();
+
+	return 0;
 }
