@@ -98,6 +98,7 @@ void cmdThread(bool* g_bRun)
 		}
 	}
 }
+#if 1
 int main(int argc, char* argv[])
 {
 	bool g_bRun = true;
@@ -129,3 +130,4 @@ int main(int argc, char* argv[])
 	printf("ÒÑÍË³ö¡£\n");
 	return 0;
 }
+#endif

@@ -41,6 +41,7 @@
 #include "Message_Header.h"
 #include "CELLTime.h"
 #include "CELLTask.h"
+#include "Memory_pool.h"
 //网络报文格式:包头+包体
 //包头
 
