@@ -38,10 +38,13 @@
 #include <mutex>
 #include <atomic>			//原子操作
 #include <functional>		//mem_fun  mem_fn 所需头文件
+#include <memory>			//智能指针
+
 #include "Message_Header.h"
 #include "CELLTime.h"
 #include "CELLTask.h"
 #include "Memory_pool.h"
+#include "ObjectPool.h"
 //网络报文格式:包头+包体
 //包头
 
@@ -53,9 +56,17 @@
 
 #define TEXE_SEND 1
 
+class Cell_Server;
+class Client_socket;
+class Cell_sendMsgToClientTask;
+class Cell_Server;
+typedef std::shared_ptr<Cell_sendMsgToClientTask> Cell_sendMsgToClientTaskPtr;
+typedef std::shared_ptr<Client_socket> Client_socketPtr;
+typedef std::shared_ptr<DataHeader> DataHeaderPtr;
+
 
 //为每个客户端创建专属的缓冲区
-class Client_socket
+class Client_socket: public ObjectPoolBase<Client_socket,1000>
 {
 public:
 	Client_socket(sockaddr_in clientaddr, SOCKET sockfd = INVALID_SOCKET) {
@@ -91,13 +102,13 @@ public:
 		_lastSendPos = pos;
 	}
 	//发送数据
-	int sendData(DataHeader* data_header)
+	int sendData(DataHeaderPtr& data_header)
 	{
 		int ret = SOCKET_ERROR;
 		//要发送的长度
 		int nSendLen = data_header->dataLength;
 		//要发送的数据
-		const char* pSendData = (const char*)data_header;
+		const char* pSendData = (const char*)data_header.get();
 		//定量发送
 		while (true)
 		{
@@ -144,28 +155,30 @@ private:
 	int _lastSendPos;					  //记录接收消息缓冲区数据的末尾，用于下次新数据存入使用
 
 };
-class Cell_Server;
 //网络事件接口，委托代理，客户端退出（方法不是唯一）
 class NetEvent
 {
 public:
 	//使用纯虚函数，让子类去实现
 	//客户端加入事件
-	virtual void OnNetJoin(Client_socket* pClient) = 0;
+	virtual void OnNetJoin(Client_socketPtr& pClient) = 0;
 	//客户端退出事件
-	virtual void OnNetLeave(Client_socket* pClient) = 0;
+	virtual void OnNetLeave(Client_socketPtr& pClient) = 0;
 	//客户端消息事件
-	virtual void onNetMsg(Cell_Server* pCell_Server, Client_socket* p_clients, DataHeader* data_header) = 0;
+	virtual void onNetMsg(Cell_Server* pCell_Server,Client_socketPtr& p_clients, DataHeader* data_header) = 0;
 
 	//测试recv和send的极限
-	virtual void onRecvCount(Client_socket* p_clients) = 0;
-	virtual void onSendCount(Client_socket* p_clients) = 0;
+	virtual void onRecvCount(Client_socketPtr& p_clients) = 0;
+	virtual void onSendCount(Client_socketPtr& p_clients) = 0;
 private:
 };
 class Cell_sendMsgToClientTask :public CellTask
 {
+private:
+	Client_socketPtr _pClient;				//客户端
+	DataHeaderPtr _pHeader;					//消息体
 public:
-	Cell_sendMsgToClientTask(Client_socket* pClient, DataHeader* pHeader)
+	Cell_sendMsgToClientTask(Client_socketPtr& pClient, DataHeaderPtr& pHeader)
 	{
 		_pClient = pClient;
 		_pHeader = pHeader;
@@ -173,11 +186,7 @@ public:
 	void doTask()
 	{
 		_pClient->sendData(_pHeader);
-		delete _pHeader;
 	}
-private:
-	Client_socket* _pClient;				//客户端
-	DataHeader* _pHeader;					//消息体
 };
 class Cell_Server
 {
@@ -191,8 +200,8 @@ private:
 	fd_set _fd_Read_bak;		//伯克利socket描述符合集备份
 	bool _client_change;		//伯克利socket描述符合集 修改标志位
 
-	std::map<SOCKET, Client_socket*> _clients;			//正式客户端队列
-	std::vector<Client_socket*> _clientsBuff;			//缓存客户端队列
+	std::map<SOCKET, Client_socketPtr> _clients;			//正式客户端队列
+	std::vector<Client_socketPtr> _clientsBuff;			//缓存客户端队列
 	NetEvent* _pNetEvent;							//网络事件
 	CellTaskServer _taskServer;						//任务事件
 public:
@@ -217,13 +226,11 @@ public:
 #ifdef _WIN32
 			for (auto iter : _clients) {
 				closesocket(iter.second->sockfd());
-				delete iter.second;
 			}
 			closesocket(_sock);
 #else
 			for (auto iter : _clients) {
 				close(iter.second->sockfd());
-				delete iter.second;
 			}
 			close(_sock);
 #endif
@@ -307,7 +314,6 @@ public:
 						_client_change = true;			//当有客户端退出，就修改标志位
 						if (_pNetEvent)
 							_pNetEvent->OnNetLeave(iter->second);	//触发退出事件
-						//delete iter->second;					//删除这片空间
 						_clients.erase(iter->first);			//从map中删除
 					}
 				}
@@ -316,9 +322,8 @@ public:
 				}
 
 			}
-
+			
 #else
-			std::vector <Client_socket*> temp;
 			for (auto iter : _clients)
 			{
 				if (FD_ISSET(iter.second->sockfd(), &fd_Read))
@@ -326,16 +331,11 @@ public:
 					if (recvData(iter.second) == -1)
 					{
 						_client_change = true;			//当有客户端退出，就修改标志位
-						if (_pINetEvent)
-							_pINetEvent->OnNetLeave(iter.second);	//触发退出事件
-						temp.push_back(iter.second);
+						if (_pNetEvent)
+							_pNetEvent->OnNetLeave(iter.second);	//触发退出事件
+						_clients.erase(iter->first);			//从map中删除
 					}
 				}
-			}
-			for (auto pClient : temp)
-			{
-				delete pClient;					//删除这片空间
-				_clients.erase(pClient->sockfd());			//从map中删除
 			}
 
 #endif // !_WIN32
@@ -343,7 +343,7 @@ public:
 		return true;
 	}
 	//接收数据 处理粘包 拆分包
-	int recvData(Client_socket* p_clients)
+	int recvData(Client_socketPtr& p_clients)
 	{
 		//直接把数据拷贝到客户端的缓冲区，就免去了拷贝的步骤
 		char* szRecv = p_clients->msgBuf() + p_clients->get_lastRecvPos();
@@ -361,7 +361,7 @@ public:
 		//判断一下消息缓存区的数据是由大于消息头,一直循环处理
 		while (p_clients->get_lastRecvPos() >= sizeof(DataHeader))
 		{
-			DataHeader* data_head = (DataHeader*)p_clients->msgBuf();
+			DataHeader* data_head = (DataHeader *)p_clients->msgBuf();
 			//判断消息缓冲区的数据长度是否大于消息长度
 			if (p_clients->get_lastRecvPos() >= data_head->dataLength) {
 				//得到第二缓冲区剩余未处理的数据长度，原本长度-处理长度=剩余长度
@@ -382,14 +382,14 @@ public:
 		return 0;
 	}
 	// 处理包头
-	virtual int onNetMsg(Cell_Server* pCell_Server, Client_socket* p_clients, DataHeader* data_header)
+	virtual int onNetMsg(Cell_Server* pCell_Server,Client_socketPtr& p_clients, DataHeader* data_header)
 	{
 		_pNetEvent->onNetMsg(pCell_Server,p_clients, data_header);
 		return 0;
 	}
 
 	//添加客户端socket
-	int addClient(Client_socket* pClient)
+	int addClient(Client_socketPtr& pClient)
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 		_clientsBuff.push_back(pClient);
@@ -408,10 +408,10 @@ public:
 		_pThread = new std::thread(std::mem_fn(&Cell_Server::onRun), this);
 		_taskServer.Start();
 	}
-	void addSendTask(Client_socket* p_clients, DataHeader* data_header)
+	void addSendTask(Client_socketPtr& p_clients, DataHeaderPtr& data_header)
 	{
-		Cell_sendMsgToClientTask* Task = new Cell_sendMsgToClientTask(p_clients, data_header);
-		_taskServer.addTask(Task);
+		auto Task= std::make_shared<Cell_sendMsgToClientTask>(p_clients, data_header);
+		_taskServer.addTask((CellTaskPtr)Task);
 	}
 };
 
@@ -530,7 +530,8 @@ public:
 		{
 			//printf("New client accept<socket:%d, %s:%u>\n", (int)clientsock, inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));//inet_ntoa,把网络字节序的IP转字符串IP
 			//将新客户端分配给客户端数量最少的cell_Server
-			addClinetToCellserver(new Client_socket(clientaddr, clientsock));
+			Client_socketPtr pClient(new Client_socket(clientaddr, clientsock));
+			addClinetToCellserver(pClient);
 		}
 		return clientsock;
 	}
@@ -587,7 +588,7 @@ public:
 		return 0;
 	}
 	//往缓冲队列添加客户端
-	int addClinetToCellserver(Client_socket* pclinet)
+	int addClinetToCellserver(Client_socketPtr& pclinet)
 	{
 		//查询客户端最小的cell_server,消息对象
 		auto pMinServer = _cellservers[0];
@@ -634,25 +635,25 @@ public:
 	}
 	//子类实现客户端事件
 	//被一个线程触发 安全
-	virtual void OnNetJoin(Client_socket* pClient) {
+	virtual void OnNetJoin(Client_socketPtr& pClient) {
 		_clientCount++;
 	}
 	//被多线程触发 不安全
-	virtual void OnNetLeave(Client_socket* pClient)
+	virtual void OnNetLeave(Client_socketPtr& pClient)
 	{
 		_clientCount--;
 	}
 	//被多线程触发 不安全
-	virtual void onNetMsg(Cell_Server* pCell_Server, Client_socket* p_clients, DataHeader* data_header)
+	virtual void onNetMsg(Cell_Server* pCell_Server,Client_socketPtr& p_clients, DataHeader* data_header)
 	{
 		_recvMsg++;
 
 	}
-	virtual void onRecvCount(Client_socket* p_clients)
+	virtual void onRecvCount(Client_socketPtr& p_clients)
 	{
 		_recvCount++;
 	}
-	virtual void onSendCount(Client_socket* p_clients)
+	virtual void onSendCount(Client_socketPtr& p_clients)
 	{
 		_sendCount++;
 	}

@@ -33,7 +33,7 @@ void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 	}
 
 	for (int n = begin; n < end; n++) {
-#if 1 
+#if 0
 		clients[n]->Connect("192.168.31.240", 10000);
 #else
 		clients[n]->Connect("192.168.31.14", 10001);
@@ -72,7 +72,7 @@ void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 
 int main(int argc, char* argv[])
 {
-	const int cCount = 1000;	//客户端数量
+	const int cCount = 100;	//客户端数量
 	Client* clients[cCount];
 
 	readyCount = 0;

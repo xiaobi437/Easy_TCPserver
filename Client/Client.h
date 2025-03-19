@@ -33,6 +33,7 @@
 #include <cstring>
 #include <stdio.h>
 #include <Thread>
+#include <atomic>
 #pragma comment(lib,"ws2_32.lib")
 #ifndef RECV_BUFF_SIZE
 #define RECV_BUFF_SIZE 10240    //缓冲区最小单元大小 10KB

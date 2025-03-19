@@ -1,11 +1,12 @@
 #include "server.h"
 #include "CELLTime.h"
+#include "Memory_pool.h"
 
 class MyServer :virtual public Server
 {
 public:
 	//被多线程触发 不安全
-	virtual void onNetMsg(Cell_Server *pCell_Server, Client_socket* p_clients, DataHeader* data_header)
+	virtual void onNetMsg(Cell_Server *pCell_Server,Client_socketPtr& p_clients, DataHeader* data_header)
 	{
 		Server::onNetMsg(pCell_Server,p_clients, data_header);
 		switch (data_header->cmd) {
@@ -14,22 +15,22 @@ public:
 			Login* login = (Login*)data_header;
 			//printf("recv: ip:%s，port：%d，name:%s, passworld:%s\n", p_clients->get_ip(), p_clients->get_port(), login->userName, login->PassWord);
 			if (strcmp(login->userName, "root") == 0 && strcmp(login->PassWord, "root") == 0) {
-				LoginResult* login_result = new LoginResult();
+				std::shared_ptr<LoginResult> login_result(new LoginResult());
 				login_result->result = 1;
 #if TEXE_SEND
 				//向客户端发送包头数据
-				pCell_Server->addSendTask(p_clients, login_result);
+				pCell_Server->addSendTask(p_clients, (DataHeaderPtr &)login_result);
 				Server::onSendCount(p_clients);
 #endif
 				break;
 			}
 			else {
 				//	cout << "用户密码错误" << endl;
-				LoginResult* login_result = new LoginResult();
+				std::shared_ptr<LoginResult> login_result(new LoginResult());
 				login_result->result = -1;
 #if TEXE_SEND
 				//向客户端发送包头数据
-				pCell_Server->addSendTask(p_clients, login_result);
+				pCell_Server->addSendTask(p_clients, (DataHeaderPtr &)login_result);
 				Server::onSendCount(p_clients);
 #endif
 				break;
@@ -40,21 +41,21 @@ public:
 		{
 			LoginOut* loginout = (LoginOut*)data_header;
 			if (strcmp(loginout->userName, "root") == 0) {
-				LoginOutResult* loginout_result = new LoginOutResult();
+				std::shared_ptr<LoginOutResult> loginout_result(new LoginOutResult());
 				loginout_result->result = 1;
 #if TEXE_SEND
 				//向客户端发送包头数据
-				pCell_Server->addSendTask(p_clients, loginout_result);
+				pCell_Server->addSendTask(p_clients, (DataHeaderPtr &)loginout_result);
 				Server::onSendCount(p_clients);
 #endif
 				break;
 			}
 			else {
-				LoginOutResult* loginout_result = new LoginOutResult();
+				std::shared_ptr<LoginOutResult> loginout_result(new LoginOutResult());
 				loginout_result->result = -1;
 #if TEXE_SEND
 				//向客户端发送包头数据
-				pCell_Server->addSendTask(p_clients, loginout_result);
+				pCell_Server->addSendTask(p_clients, (DataHeaderPtr &)loginout_result);
 				Server::onSendCount(p_clients);
 #endif
 				break;
