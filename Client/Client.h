@@ -39,6 +39,7 @@
 #define RECV_BUFF_SIZE 10240    //缓冲区最小单元大小 10KB
 #endif // !RECV_BUFF_SIZE
 
+std::atomic<int> sendCount;
 std::atomic<int> recvCount;
 
 class Client
@@ -74,10 +75,9 @@ public:
 	bool onRun();
 	bool isRun();
 	//获取socket
-	int getSock() {
+	SOCKET getSock() {
 		return _sock;
 	}
-
 private:
 	SOCKET _sock;
 	bool _isConnect;		//连接状态
