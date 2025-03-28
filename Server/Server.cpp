@@ -1,49 +1,37 @@
 #include "server.h"
 #include "CELLTime.h"
+#include "Memory_pool.h"
 
 class MyServer :virtual public Server
 {
 public:
-
-	//子类实现客户端事件
-//被一个线程触发 安全
-	virtual void OnNetJoin(Client_socket* pClient) {
-		_clientCount++;
-		//printf("new client join:<ip:%s, port:%d, socket:%d>\n", pClient->get_ip(), pClient->get_port(), (int)pClient->get_socket());
-	}
 	//被多线程触发 不安全
-	virtual void OnNetLeave(Client_socket* pClient)
+	virtual void onNetMsg(Cell_Server *pCell_Server,Client_socketPtr& p_clients, DataHeader* data_header)
 	{
-		_clientCount--;
-		//printf("client Leave:<ip:%s, port:%d, socket:%d>\n", pClient->get_ip(), pClient->get_port(),(int)pClient->get_socket());
-	}
-	//被多线程触发 不安全
-	virtual void onNetMsg(Client_socket* p_clients, DataHeader* data_header)
-	{
-		_recvCount++;
+		Server::onNetMsg(pCell_Server,p_clients, data_header);
 		switch (data_header->cmd) {
 		case CMD_LOGIN:			//登录成功就返回结果
 		{
 			Login* login = (Login*)data_header;
 			//printf("recv: ip:%s，port：%d，name:%s, passworld:%s\n", p_clients->get_ip(), p_clients->get_port(), login->userName, login->PassWord);
 			if (strcmp(login->userName, "root") == 0 && strcmp(login->PassWord, "root") == 0) {
-				LoginResult login_result = {};
-				login_result.result = 1;
+				std::shared_ptr<LoginResult> login_result(new LoginResult());
+				login_result->result = 1;
 #if TEXE_SEND
 				//向客户端发送包头数据
-				p_clients->sendData(&login_result);
-				onSendMsg(p_clients);
+				pCell_Server->addSendTask(p_clients, (DataHeaderPtr &)login_result);
+				Server::onSendCount(p_clients);
 #endif
 				break;
 			}
 			else {
 				//	cout << "用户密码错误" << endl;
-				LoginResult login_result = {};
-				login_result.result = -1;
+				std::shared_ptr<LoginResult> login_result(new LoginResult());
+				login_result->result = -1;
 #if TEXE_SEND
 				//向客户端发送包头数据
-				p_clients->sendData(&login_result);
-				onSendMsg(p_clients);
+				pCell_Server->addSendTask(p_clients, (DataHeaderPtr &)login_result);
+				Server::onSendCount(p_clients);
 #endif
 				break;
 			}
@@ -53,40 +41,35 @@ public:
 		{
 			LoginOut* loginout = (LoginOut*)data_header;
 			if (strcmp(loginout->userName, "root") == 0) {
-				LoginOutResult loginout_result = {};
-				loginout_result.result = 1;
+				std::shared_ptr<LoginOutResult> loginout_result(new LoginOutResult());
+				loginout_result->result = 1;
 #if TEXE_SEND
 				//向客户端发送包头数据
-				p_clients->sendData(&loginout_result);
-				onSendMsg(p_clients);
+				pCell_Server->addSendTask(p_clients, (DataHeaderPtr &)loginout_result);
+				Server::onSendCount(p_clients);
 #endif
 				break;
 			}
 			else {
-				LoginOutResult loginout_result = {};
-				loginout_result.result = -1;
+				std::shared_ptr<LoginOutResult> loginout_result(new LoginOutResult());
+				loginout_result->result = -1;
 #if TEXE_SEND
 				//向客户端发送包头数据
-				p_clients->sendData(&loginout_result);
-				onSendMsg(p_clients);
+				pCell_Server->addSendTask(p_clients, (DataHeaderPtr &)loginout_result);
+				Server::onSendCount(p_clients);
 #endif
 				break;
 			}
 		}
 		default:
 		{
-			printf("收到客户端<socket:%d>未知数据, 数据长度:%d\n", (int)p_clients->get_socket(), data_header->dataLength);
+			printf("收到客户端<socket:%d>未知数据, 数据长度:%d\n", (int)p_clients->sockfd(), data_header->dataLength);
 			//DataHeader data_head = {};
 			//sendData(client_sock, &data_head);
 			break;
 		}
 		}
 
-	}
-
-	virtual void onSendMsg(Client_socket* p_clients)
-	{
-		_sendCount++;
 	}
 	//线程：显示吞吐数据
 	void show()
@@ -99,9 +82,27 @@ protected:
 
 
 };
+void cmdThread(bool* g_bRun)
+{
+	while (true)
+	{
+		char cmdBuf[256] = {};
+		scanf("%s", cmdBuf);
+		if (0 == strcmp(cmdBuf, "exit"))
+		{
+			*g_bRun = false;
+			printf("退出cmdThread线程\n");
+			break;
+		}
+		else {
+			printf("不支持的命令。\n");
+		}
+	}
+}
+#if 1
 int main(int argc, char* argv[])
 {
-	bool flag = true;
+	bool g_bRun = true;
 	int max = 0;
 
 #ifdef _WIN32
@@ -116,18 +117,18 @@ int main(int argc, char* argv[])
 	serverA.Start(4);
 #endif // _WIN32
 
-	Login login = {};
-	strcpy(login.userName, "root");
-	strcpy(login.PassWord, "root");
-
+	//启动流量监视线程
 	serverA.show();
-	while (serverA.isRun()) {
+	//启动UI线程
+	std::thread t1(cmdThread, &g_bRun);
+	t1.detach();
+	while (g_bRun) {
 
 		serverA.onRun();
 	}
 
-
 	serverA.Close_sock();
-
+	printf("已退出。\n");
 	return 0;
 }
+#endif

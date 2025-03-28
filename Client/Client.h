@@ -33,10 +33,13 @@
 #include <cstring>
 #include <stdio.h>
 #include <Thread>
+#include <atomic>
 #pragma comment(lib,"ws2_32.lib")
 #ifndef RECV_BUFF_SIZE
 #define RECV_BUFF_SIZE 10240    //缓冲区最小单元大小 10KB
 #endif // !RECV_BUFF_SIZE
+
+std::atomic<int> recvCount;
 
 class Client
 {
@@ -45,6 +48,7 @@ public:
 		_sock = INVALID_SOCKET;
 		_lastPos = 0;
 		_sendConut = 0;
+		_isConnect = false;
 		memset(_szRecv, 0, sizeof(_szRecv));
 		memset(_szMsgBuf, 0, sizeof(_szMsgBuf));
 		Init_sock();
@@ -76,6 +80,8 @@ public:
 
 private:
 	SOCKET _sock;
+	bool _isConnect;		//连接状态
+
 	char _szRecv[RECV_BUFF_SIZE];		//接收缓冲区
 	char _szMsgBuf[RECV_BUFF_SIZE*5];		//第二缓冲区，消息缓冲区50KB
 	int _lastPos;							//记录消息缓冲区数据的末尾，用于下次新数据存入使用

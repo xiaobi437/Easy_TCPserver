@@ -1,9 +1,13 @@
 #include "client.h"
 
+std::atomic<int> readyCount;
+std::atomic<int> sendCount;
+const int tCount = 4;	//线程数量
+
 int cmd_flag(bool* flag)
 {
 	char buf[128] = {};
-	while (1)
+	while (true)
 	{
 		memset(buf, 0, sizeof(buf));
 		std::cin >> buf;
@@ -20,7 +24,7 @@ int cmd_flag(bool* flag)
 }
 void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 {
-	int cnumber = cCount / 4;
+	int cnumber = cCount / tCount;
 	int begin = (id - 1) * cnumber;		//从零开始
 	int end = id * cnumber;
 
@@ -29,15 +33,20 @@ void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 	}
 
 	for (int n = begin; n < end; n++) {
-#if 1 
+#if 0
 		clients[n]->Connect("192.168.31.240", 10000);
 #else
 		clients[n]->Connect("192.168.31.14", 10001);
 #endif 
 	}
 	printf("thread<%d>,Connect<begin=%d,end=%d>\n", id, begin, end);
-	std::chrono::milliseconds t(3000);
-	std::this_thread::sleep_for(t);
+	readyCount++;
+	while (readyCount < tCount)
+	{
+		std::chrono::milliseconds t(10);
+		std::this_thread::sleep_for(t);
+	}
+	
 
 	Login login[1] = {};
 	for (int n = 0; n < 0; n++) {
@@ -49,9 +58,9 @@ void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 	while (flag) {
 
 		for (int n = begin; n < end; n++) {
-			clients[n]->onRun();
 			clients[n]->SendData(login, nLen);
-
+			clients[n]->onRun();
+			sendCount++;
 		}
 	}
 
@@ -63,11 +72,12 @@ void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 
 int main(int argc, char* argv[])
 {
-	const int cCount = 1000;	//客户端数量
-	const int tCount = 4;				//线程数量
+	const int cCount = 100;	//客户端数量
 	Client* clients[cCount];
 
-
+	readyCount = 0;
+	sendCount = 0;
+	recvCount = 0;
 	bool flag = true;		//结束标志位
 	
 	//启动发送线程
@@ -81,8 +91,23 @@ int main(int argc, char* argv[])
 	std::thread t1(cmd_flag, &flag);
 	t1.detach();
 
+	//计时器
+	CELLTimestamp tTime;
+	while (readyCount < tCount)
+		Sleep(1);
 	while (flag)
-		Sleep(100);
+	{
+		auto t = tTime.getElapsedSecond();
+		if (t >= 1.0)
+		{
+			printf("thread<%d>,client<%d>,Time<%lf>, sendCount<%d>, recvCount<%d>\n", tCount, cCount, t, (int)(sendCount / t), (int)(recvCount / t));
+			tTime.update();
+			sendCount = 0;
+			recvCount = 0;
+		}
+		Sleep(1);
+	}
+		
 
 	
 	return 0;
@@ -136,6 +161,7 @@ int Client::Connect(const char* ip, unsigned short port)
 		return -1;
 	}
 	else{
+		_isConnect = true;
 		//printf("连接服务器<%s:%d>成功....\n", ip, port);
 	}
 	return ret;
@@ -152,20 +178,23 @@ int Client::Close_sock()
 #endif // _WIN32
 	_sock = INVALID_SOCKET;
 	}
+	_isConnect = false;
 	return 0;
 }
 
 //接收数据 处理粘包 拆分包
 int Client::RecvData(SOCKET cSock)
 {
-	//接收数据存到接收缓冲区，接收大小缓冲区大小（10KB）
-	int nLen = recv(cSock, _szRecv, RECV_BUFF_SIZE, 0);
+	//直接把数据拷贝到客户端的缓冲区，就免去了拷贝的步骤
+	char* szRecv = _szMsgBuf + _lastPos;
+	//接收数据存到接收缓冲区，接收大小缓冲区大小（50KB）
+	int nLen = recv(cSock, szRecv, (RECV_BUFF_SIZE*5)- _lastPos, 0);
 	if (nLen <= 0) {
 		printf("接收服务器<socket:%d>消息失败....\n", (int)cSock);
 		return -1;
 	}
 	//把接收缓冲区的数据拷贝到消息缓冲区,接收到多少就拷贝多少
-	memcpy(_szMsgBuf + _lastPos, _szRecv, nLen);
+	//memcpy(_szMsgBuf + _lastPos, _szRecv, nLen);
 	//记录缓冲区数据最后的位置,当有新的数据接收的时候就可以使用这个位置继续存放数据
 	_lastPos += nLen;
 	//判断一下消息缓存区的数据是由大于消息头,一直循环处理
@@ -193,6 +222,7 @@ int Client::RecvData(SOCKET cSock)
 
 int Client::onNetMsg(DataHeader *data_head)
 {
+	recvCount++;
 	char cmd_buf[6][20] = { "CMD_LOGIN","CMD_LOGIN_RET","CMD_LOGINOUT","CMD_LOGINOUT_RET","CMD_NEW_LOGIN","CMD_ERROR" };
 	switch (data_head->cmd) {
 		case CMD_LOGIN:
@@ -245,17 +275,6 @@ int Client::SendData(DataHeader* data_head,int nLen)
 			printf("向服务器<socket:%d>发送消息失败....\n", (int)_sock);
 			return -1;
 		}
-		/*
-		_sendConut++;
-		auto t1 = _tTime.getElapsedSecond();
-		if (t1 >= 1.0)
-		{
-			double Gb = (((((double)_sendConut * 1000) / 1024) / 1024) * 8) / 1024;
-			printf("Time<%lf>, socket<%d>, sendCount<%d>,recv:%0.2fGbps/s\n", t1, (int)_sock, _sendConut, Gb);
-			_tTime.update();
-			_sendConut = 0;
-		}
-		*/
 	}
 
 	return 0;
