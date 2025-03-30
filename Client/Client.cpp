@@ -1,8 +1,8 @@
 #include "client.h"
 
 std::atomic<int> readyCount;
-std::atomic<int> sendCount;
 const int tCount = 4;	//线程数量
+const int cCount = 10;	//客户端数量
 
 int cmd_flag(bool* flag)
 {
@@ -22,6 +22,19 @@ int cmd_flag(bool* flag)
 	}
 	return 0;
 }
+
+void recv_Thread(Client* clients[], int begin, int end, bool* flag)
+{
+	printf("thread,recv<begin=%d,end=%d> start\n", begin, end);
+	while (flag) {
+
+		for (int n = begin; n < end; n++) {
+			if (!clients[n]->onRun())
+				*flag = false;
+		}
+	}
+	printf("服务器退出任务结束 recv_Thread()\n");
+}
 void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 {
 	int cnumber = cCount / tCount;
@@ -33,10 +46,10 @@ void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 	}
 
 	for (int n = begin; n < end; n++) {
-#if 0
+#if 1
 		clients[n]->Connect("192.168.31.240", 10000);
 #else
-		clients[n]->Connect("192.168.31.14", 10001);
+		clients[n]->Connect("192.168.31.241", 10001);
 #endif 
 	}
 	printf("thread<%d>,Connect<begin=%d,end=%d>\n", id, begin, end);
@@ -46,38 +59,40 @@ void send_Thread(Client* clients[],const int cCount, int id, bool *flag)
 		std::chrono::milliseconds t(10);
 		std::this_thread::sleep_for(t);
 	}
-	
+	//启动接收线程
+	std::thread t1(recv_Thread, clients, begin, end, flag);
 
 	Login login[1] = {};
-	for (int n = 0; n < 0; n++) {
+	for (int n = 0; n < 1; n++) {
 		strcpy(login[n].userName, "root");
 		strcpy(login[n].PassWord, "root");
 	}
 	
 	const int nLen = sizeof(login);
 	while (flag) {
-
+		
 		for (int n = begin; n < end; n++) {
-			clients[n]->SendData(login, nLen);
-			clients[n]->onRun();
-			sendCount++;
+			if (clients[n]->SendData(login, nLen) == -1)
+				*flag = false;
 		}
+		//std::chrono::microseconds t(200);
+		//std::this_thread::sleep_for(t);
 	}
 
 	for (int n = begin; n < end; n++) {
 		clients[n]->Close_sock();
 		delete clients[n];
 	}
+	printf("服务器退出任务结束 send_Thread()\n");
 }
 
 int main(int argc, char* argv[])
 {
-	const int cCount = 100;	//客户端数量
 	Client* clients[cCount];
-
-	readyCount = 0;
 	sendCount = 0;
 	recvCount = 0;
+
+	readyCount = 0;
 	bool flag = true;		//结束标志位
 	
 	//启动发送线程
@@ -108,7 +123,7 @@ int main(int argc, char* argv[])
 		Sleep(1);
 	}
 		
-
+	printf("服务器退出任务结束\n");
 	
 	return 0;
 }
@@ -275,6 +290,7 @@ int Client::SendData(DataHeader* data_head,int nLen)
 			printf("向服务器<socket:%d>发送消息失败....\n", (int)_sock);
 			return -1;
 		}
+		sendCount++;
 	}
 
 	return 0;
