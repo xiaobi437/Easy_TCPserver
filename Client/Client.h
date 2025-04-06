@@ -2,8 +2,8 @@
 #define CLIENT_H
 
 #ifdef _WIN32
-#define FD_SETSIZE 1024			//ÒªÔÚÍ·ÎÄ¼şwinsock2.hÇ°¶¨Òå
-#define WIN32_LEAN_AND_MEAN		//Õâ¸öºê¿ÉÒÔ¾¡Á¿±ÜÃâÔçÆÚµÄºêºÍÆäËûÒÀÀµ¿âµÄÊ¹ÓÃ
+#define FD_SETSIZE 1024			//è¦åœ¨å¤´æ–‡ä»¶winsock2.hå‰å®šä¹‰
+#define WIN32_LEAN_AND_MEAN		//è¿™ä¸ªå®å¯ä»¥å°½é‡é¿å…æ—©æœŸçš„å®å’Œå…¶ä»–ä¾èµ–åº“çš„ä½¿ç”¨
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -19,7 +19,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <algorithm>		//linuxÏÂ,vector ÖĞfindº¯Êı,ĞèÒªÕâ¸öÍ·ÎÄ¼ş
+#include <algorithm>		//linuxä¸‹,vector ä¸­findå‡½æ•°,éœ€è¦è¿™ä¸ªå¤´æ–‡ä»¶
 
 #define SOCKET int
 #define INVALID_SOCKET  (SOCKET)(~0)
@@ -27,16 +27,18 @@
 
 #endif // _WIN32
 #include "Message_Header.h"
-#include "CELLTime.h"
+#include "Timestamp.h"
 #include <iostream>
 #include <vector>
 #include <cstring>
 #include <stdio.h>
-#include <Thread>
+#include <thread>
+#include <atomic>
 #pragma comment(lib,"ws2_32.lib")
 #ifndef RECV_BUFF_SIZE
-#define RECV_BUFF_SIZE 10240    //»º³åÇø×îĞ¡µ¥Ôª´óĞ¡ 10KB
+#define RECV_BUFF_SIZE 10240    //ç¼“å†²åŒºæœ€å°å•å…ƒå¤§å° 10KB
 #endif // !RECV_BUFF_SIZE
+
 
 class Client
 {
@@ -44,7 +46,6 @@ public:
 	Client() {
 		_sock = INVALID_SOCKET;
 		_lastPos = 0;
-		_sendConut = 0;
 		memset(_szRecv, 0, sizeof(_szRecv));
 		memset(_szMsgBuf, 0, sizeof(_szMsgBuf));
 		Init_sock();
@@ -53,36 +54,36 @@ public:
 		Close_sock();
 	}
 
-	//³õÊ¼»¯socket
+	//åˆå§‹åŒ–socket
 	int Init_sock();
-	//Á¬½Ó·şÎñÆ÷
+	//è¿æ¥æœåŠ¡å™¨
 	int Connect(const char *ip, unsigned short port);
-	//¹Ø±Õsocket
+	//å…³é—­socket
 	int Close_sock();
 
-	//½ÓÊÕÊı¾İ ´¦ÀíÕ³°ü¡¢²ğ°ü
+	//æ¥æ”¶æ•°æ® å¤„ç†ç²˜åŒ…ã€æ‹†åŒ…
 	int RecvData(SOCKET _cSock);
-	//´¦Àí°üÍ·
+	//å¤„ç†åŒ…å¤´
 	int onNetMsg(DataHeader* data_head);
-	//·¢ËÍÊı¾İ
+	//å‘é€æ•°æ®
 	int SendData(DataHeader* data_head, int nLen);
-	//²éÑ¯ÍøÂçÏûÏ¢
+	//æŸ¥è¯¢ç½‘ç»œæ¶ˆæ¯
 	bool onRun();
 	bool isRun();
-	//»ñÈ¡socket
-	int getSock() {
+	//è·å–socket
+	SOCKET getSock() {
 		return _sock;
 	}
 
 private:
-	SOCKET _sock;
-	char _szRecv[RECV_BUFF_SIZE];		//½ÓÊÕ»º³åÇø
-	char _szMsgBuf[RECV_BUFF_SIZE*5];		//µÚ¶ş»º³åÇø£¬ÏûÏ¢»º³åÇø50KB
-	int _lastPos;							//¼ÇÂ¼ÏûÏ¢»º³åÇøÊı¾İµÄÄ©Î²£¬ÓÃÓÚÏÂ´ÎĞÂÊı¾İ´æÈëÊ¹ÓÃ
+	char _szRecv[RECV_BUFF_SIZE];		//æ¥æ”¶ç¼“å†²åŒº
+	char _szMsgBuf[RECV_BUFF_SIZE*5];		//ç¬¬äºŒç¼“å†²åŒºï¼Œæ¶ˆæ¯ç¼“å†²åŒº50KB
 
-	//¸ß¾«¶È¼ÆÊ±Æ÷
+	//é«˜ç²¾åº¦è®¡æ—¶å™¨
 	CELLTimestamp _tTime;
-	int _sendConut;
+	int _lastPos;							//è®°å½•æ¶ˆæ¯ç¼“å†²åŒºæ•°æ®çš„æœ«å°¾ï¼Œç”¨äºä¸‹æ¬¡æ–°æ•°æ®å­˜å…¥ä½¿ç”¨
+	SOCKET _sock;
+
 };
 
 #endif // ! 
